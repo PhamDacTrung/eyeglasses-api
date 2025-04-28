@@ -1,0 +1,5 @@
+export enum EnumInjectServiceToken {
+  USER_SERVICE = 'USER_SERVICE',
+  USER_INFO_SERVICE = 'USER_INFO_SERVICE',
+  AUTH_SERVICE = 'AUTH_SERVICE',
+}

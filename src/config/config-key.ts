@@ -1,0 +1,7 @@
+export const CONFIG_KEY = {
+  LOGGER: 'LOGGER',
+  CACHE: 'CACHE',
+  AUTH: 'AUTH',
+  BULLMQ: 'BULLMQ',
+  DATABASE: 'DATABASE',
+};
