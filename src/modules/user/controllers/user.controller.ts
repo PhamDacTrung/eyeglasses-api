@@ -13,13 +13,13 @@ import { IUserService } from '../interfaces';
 @ApiTags('Users')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(EnumUserRole.USER)
 export class UserController {
   constructor(
     @Inject(EnumInjectServiceToken.USER_SERVICE)
     private readonly userService: IUserService,
   ) {}
 
-  @Roles(EnumUserRole.USER)
   @Get('@me')
   @ApiResponseWrapper(UserResponseDto, 'Get current user')
   async getCurrentUser(

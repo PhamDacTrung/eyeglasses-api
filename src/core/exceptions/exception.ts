@@ -33,8 +33,8 @@ export class NotFoundException extends Exception {
 }
 
 export class InternalServerError extends Exception {
-  constructor(message: string) {
-    super(HttpStatus.INTERNAL_SERVER_ERROR, message);
+  constructor(message: string, data?: unknown) {
+    super(HttpStatus.INTERNAL_SERVER_ERROR, message, data);
   }
 }
 
@@ -71,6 +71,9 @@ export class ExceptionHandler {
       message ??
       (error instanceof Error ? error.message : 'Internal server error');
 
-    throw new InternalServerError(errorMessage);
+    throw new InternalServerError('Internal server error', {
+      cause: error,
+      description: errorMessage,
+    });
   }
 }
