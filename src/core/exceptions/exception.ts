@@ -50,6 +50,12 @@ export class NotImplementedException extends Exception {
   }
 }
 
+export class UnprocessableEntityException extends Exception {
+  constructor(message: string, data?: unknown) {
+    super(HttpStatus.UNPROCESSABLE_ENTITY, message, data);
+  }
+}
+
 export class ExternalServiceException extends Exception {
   private static readonly defaultMessage = 'Error in external service';
 

@@ -28,7 +28,7 @@ export class User extends BaseEntity {
     nullable: true,
   })
   @Index('user_search_vector_idx', { synchronize: false })
-  search_vector: string;
+  searchVector: string;
 
   @OneToOne(() => UserInfo, (userInfo) => userInfo.user)
   userInfo: UserInfo;

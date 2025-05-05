@@ -3,12 +3,14 @@
 
 import { AuthModule } from '@modules';
 import { AuthController } from '@modules/auth/auth.controller';
+import { ProductPublicController } from '@modules/product/controllers';
+import { ProductModule } from '@modules/product/product.module';
 import { Module } from '@nestjs/common';
 
 @Module({
-  controllers: [AuthController],
+  controllers: [AuthController, ProductPublicController],
   providers: [],
   exports: [],
-  imports: [AuthModule],
+  imports: [AuthModule, ProductModule],
 })
 export class RoutesPublicModule {}

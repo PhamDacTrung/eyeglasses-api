@@ -19,7 +19,7 @@ import { IUserService } from '../interfaces';
   path: 'users',
   version: '1',
 })
-@ApiTags('Users [Admin only]')
+@ApiTags('Users (Admin only)')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(EnumUserRole.ADMIN)

@@ -1,5 +1,6 @@
+import { ObjectFilterDto } from '@common/dtos';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString } from 'class-validator';
+import { IsEmail } from 'class-validator';
 
 export class UpdateUserEmailRequestDto {
   @IsEmail()
@@ -10,11 +11,4 @@ export class UpdateUserEmailRequestDto {
   email: string;
 }
 
-export class UserFilterDto {
-  @IsString()
-  @ApiProperty({
-    description: 'The name of the user',
-    example: 'John Doe',
-  })
-  keyword?: string;
-}
+export class UserFilterDto extends ObjectFilterDto {}

@@ -89,6 +89,7 @@ export const ApiResponseWrapper = (
   };
 
   return applyDecorators(
+    ApiOperation({ summary }),
     ApiExtraModels(ResponseDto),
     ApiOkResponse({ schema: schema as SchemaObject }),
   );
