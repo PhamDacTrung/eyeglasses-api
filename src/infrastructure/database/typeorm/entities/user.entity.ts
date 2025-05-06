@@ -1,6 +1,7 @@
 import { EnumUserRole } from '@common/enums';
-import { Column, Entity, Index, OneToOne } from 'typeorm';
+import { Column, Entity, Index, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { UserAddress } from './user-address.entity';
 import { UserInfo } from './user-info.entity';
 
 @Entity()
@@ -32,4 +33,7 @@ export class User extends BaseEntity {
 
   @OneToOne(() => UserInfo, (userInfo) => userInfo.user)
   userInfo: UserInfo;
+
+  @OneToMany(() => UserAddress, (userAddress) => userAddress.user)
+  addresses: UserAddress[];
 }

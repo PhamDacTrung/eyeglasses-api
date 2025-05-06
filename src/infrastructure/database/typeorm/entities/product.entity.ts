@@ -2,6 +2,9 @@ import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { CartItem } from './cart-item.entity';
 import { OrderItem } from './order-item.entity';
+import { ProductAsset } from './product-asset.entity';
+import { ProductCategory } from './product-category.entity';
+import { Review } from './review.entity';
 
 @Entity()
 export class Product extends BaseEntity {
@@ -15,22 +18,16 @@ export class Product extends BaseEntity {
   description?: string | null;
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
-  price: number;
+  originalPrice: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  salePrice?: number | null;
 
   @Column({ type: 'int' })
   stockQuantity: number;
 
-  @Column({ type: 'varchar', array: true, nullable: true })
-  imageUrls?: string[] | null;
-
   @Column({ type: 'boolean', default: false })
   isPublic: boolean;
-
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
-  orderItems: OrderItem[];
-
-  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
-  cartItems: CartItem[];
 
   @Column({
     type: 'tsvector',
@@ -41,4 +38,22 @@ export class Product extends BaseEntity {
   })
   @Index('product_search_vector_idx', { synchronize: false })
   searchVector: string;
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItems: OrderItem[];
+
+  @OneToMany(() => CartItem, (cartItem) => cartItem.product)
+  cartItems: CartItem[];
+
+  @OneToMany(
+    () => ProductCategory,
+    (productCategory) => productCategory.product,
+  )
+  productCategories: ProductCategory[];
+
+  @OneToMany(() => ProductAsset, (productAsset) => productAsset.product)
+  productAssets: ProductAsset[];
+
+  @OneToMany(() => Review, (review) => review.product)
+  reviews: Review[];
 }

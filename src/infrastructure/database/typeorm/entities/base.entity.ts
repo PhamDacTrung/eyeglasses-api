@@ -13,25 +13,33 @@ export abstract class IdentityEntity {
 }
 
 export abstract class BaseEntity extends IdentityEntity {
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'time with time zone' })
   @Expose()
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'time with time zone' })
   updatedAt: Date;
 
-  @DeleteDateColumn({ nullable: true, select: false })
+  @DeleteDateColumn({
+    nullable: true,
+    select: false,
+    type: 'time with time zone',
+  })
   deletedAt?: Date | null;
 }
 
 export abstract class BaseEntityWithoutId {
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'time with time zone' })
   @Expose()
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'time with time zone' })
   updatedAt: Date;
 
-  @DeleteDateColumn({ nullable: true, select: false })
+  @DeleteDateColumn({
+    nullable: true,
+    select: false,
+    type: 'time with time zone',
+  })
   deletedAt?: Date | null;
 }
