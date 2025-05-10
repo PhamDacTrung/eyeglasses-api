@@ -38,7 +38,16 @@ export class ProductResponseDto {
     description: 'The price of the product',
     example: 100,
   })
-  price: number;
+  originalPrice: number;
+
+  @Expose()
+  @ApiPropertyOptional({
+    description: 'The sale price of the product',
+    example: 90,
+    required: false,
+    nullable: true,
+  })
+  salePrice?: number | null;
 
   @Expose()
   @ApiProperty({
@@ -46,16 +55,6 @@ export class ProductResponseDto {
     example: 100,
   })
   stockQuantity: number;
-
-  @Expose()
-  @ApiPropertyOptional({
-    description: 'The image of the product',
-    example: [
-      'https://example.com/image.jpg',
-      'https://example.com/image2.jpg',
-    ],
-  })
-  imageUrls?: string[] | null;
 
   @Expose()
   @ApiProperty({

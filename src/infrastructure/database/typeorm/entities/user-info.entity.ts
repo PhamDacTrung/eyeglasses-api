@@ -14,7 +14,7 @@ export class UserInfo extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column({ type: 'time with time zone', nullable: true })
+  @Column({ type: 'timestamp with time zone', nullable: true })
   dateOfBirth?: Date;
 
   @Column('varchar', { length: 20, nullable: true })

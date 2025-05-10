@@ -1,7 +1,6 @@
 import { ObjectFilterDto } from '@common/dtos';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import {
-  IsArray,
   IsBoolean,
   IsNotEmpty,
   IsNumber,
@@ -42,7 +41,17 @@ export class CreateProductRequestDto {
     description: 'The price of the product',
     example: 100,
   })
-  price: number;
+  originalPrice: number;
+
+  @IsNumber()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'The sale price of the product',
+    example: 90,
+    required: false,
+    nullable: true,
+  })
+  salePrice?: number | null;
 
   @IsNumber()
   @IsNotEmpty()
@@ -51,17 +60,6 @@ export class CreateProductRequestDto {
     example: 100,
   })
   stockQuantity: number;
-
-  @IsArray()
-  @IsOptional()
-  @ApiPropertyOptional({
-    description: 'The image URLs of the product',
-    example: [
-      'https://example.com/image1.jpg',
-      'https://example.com/image2.jpg',
-    ],
-  })
-  imageUrls?: string[];
 
   @IsBoolean()
   @IsOptional()

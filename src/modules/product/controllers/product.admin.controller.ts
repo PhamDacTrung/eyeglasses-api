@@ -1,22 +1,26 @@
 import { ApiResponseWrapper, Roles } from '@common/decorators';
 import { EnumInjectServiceToken, EnumUserRole } from '@common/enums';
 import { JwtAuthGuard, RolesGuard } from '@common/guards';
+import { PageOptionsDto } from '@common/paginations';
 import {
   Body,
   Controller,
   Delete,
+  Get,
   Inject,
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   CreateProductRequestDto,
+  ProductFiltersDto,
   UpdateProductRequestDto,
 } from '../dtos/requests';
-import { ProductResponseDto } from '../dtos/responses';
+import { PageProductResponseDto, ProductResponseDto } from '../dtos/responses';
 import { IProductService } from '../interfaces';
 
 @Controller({
@@ -33,6 +37,15 @@ export class ProductAdminController {
     private readonly productService: IProductService,
   ) {}
 
+  @Get()
+  @ApiResponseWrapper(PageProductResponseDto, 'Get all products')
+  async getAllProducts(
+    @Query() pageOptions: PageOptionsDto,
+    @Query() filters?: ProductFiltersDto,
+  ): Promise<PageProductResponseDto> {
+    return this.productService.getAll(pageOptions, filters);
+  }
+
   @Post()
   @ApiResponseWrapper(ProductResponseDto, 'Create a product')
   create(@Body() data: CreateProductRequestDto): Promise<ProductResponseDto> {
@@ -40,11 +53,11 @@ export class ProductAdminController {
   }
 
   @Put(':id')
-  @ApiResponseWrapper(undefined, 'Update a product')
+  @ApiResponseWrapper(ProductResponseDto, 'Update a product')
   update(
     @Param('id') id: string,
     @Body() data: UpdateProductRequestDto,
-  ): Promise<void> {
+  ): Promise<ProductResponseDto> {
     return this.productService.updateOne(id, data);
   }
 

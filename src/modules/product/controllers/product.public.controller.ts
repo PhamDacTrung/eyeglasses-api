@@ -21,11 +21,13 @@ export class ProductPublicController {
 
   @Get()
   @ApiResponseWrapper(PageProductResponseDto, 'Get all products')
-  getAll(
+  async getAll(
     @Query() pageOptions: PageOptionsDto,
     @Query() filters: ProductFiltersDto,
   ): Promise<PageProductResponseDto> {
-    return this.productService.getAllPublic(pageOptions, filters);
+    const result = await this.productService.getAllPublic(pageOptions, filters);
+
+    return result;
   }
 
   @Get(':id')

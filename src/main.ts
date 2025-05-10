@@ -40,7 +40,10 @@ async function bootstrap() {
     }),
   );
 
+  // First, apply our custom interceptor which formats the response
+  // Then apply the ClassSerializerInterceptor for the other responses
   app.useGlobalInterceptors(
+    new CoreTransformInterceptor(),
     new ClassSerializerInterceptor(app.get(Reflector), {
       excludeExtraneousValues: true,
       exposeUnsetFields: true,
@@ -49,8 +52,8 @@ async function bootstrap() {
       exposeDefaultValues: false,
       enableCircularCheck: true,
     }),
-    new CoreTransformInterceptor(),
   );
+
   await app.listen(PORT);
 
   // Get the Winston logger instance

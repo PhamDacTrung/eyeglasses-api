@@ -38,7 +38,7 @@ export class UserResponseDto {
     description: 'The details of the user',
     type: UserInfoResponseDto,
   })
-  details: UserInfoResponseDto;
+  userInfo: UserInfoResponseDto;
 }
 
 export class PageUserResponseDto extends createPageDto(UserResponseDto) {}

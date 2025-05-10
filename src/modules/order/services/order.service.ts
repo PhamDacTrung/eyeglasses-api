@@ -1,15 +1,23 @@
-import { EnumOrderStatus, EnumSortDirection } from '@common/enums';
+import {
+  EnumCouponApplicableTo,
+  EnumCouponType,
+  EnumInjectServiceToken,
+  EnumOrderStatus,
+  EnumSortDirection,
+} from '@common/enums';
 import { PageMetaDto, PageOptionsDto } from '@common/paginations';
 import {
+  BadRequestException,
   ExceptionHandler,
+  NotFoundException,
   UnprocessableEntityException,
 } from '@core/exceptions';
-import { CartItem, Order, OrderItem, Product } from '@entities';
+import { CartItem, Order, OrderItem, Product, UserAddress } from '@entities';
 import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+  ICouponService,
+  IOrderCouponService,
+} from '@modules/coupon/interfaces';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
 import { In, Repository } from 'typeorm';
@@ -32,6 +40,15 @@ export class OrderService implements IOrderService {
 
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    @InjectRepository(UserAddress)
+    private readonly userAddressRepository: Repository<UserAddress>,
+
+    @Inject(EnumInjectServiceToken.COUPON_SERVICE)
+    private readonly couponService: ICouponService,
+
+    @Inject(EnumInjectServiceToken.ORDER_COUPON_SERVICE)
+    private readonly orderCouponService: IOrderCouponService,
   ) {}
 
   @Transactional()
@@ -39,7 +56,7 @@ export class OrderService implements IOrderService {
     userId: string,
     data: CreateOrderRequestDto,
   ): Promise<OrderResponseDto> {
-    const { cartItemIds, paymentMethod, shippingAddress } = data;
+    const { cartItemIds, paymentMethod, userAddressId, couponIds } = data;
 
     const cartItems = await this.cartItemRepository.find({
       where: { id: In(cartItemIds), cart: { user: { id: userId } } },
@@ -59,23 +76,77 @@ export class OrderService implements IOrderService {
       }
     }
 
+    // get coupon infos
+    const couponInfos = await this.couponService.getManyByIds(couponIds);
+
+    // can apply only 1 shipping coupon
+    const shippingCoupon = couponInfos.find(
+      (coupon) => coupon.applicableTo === EnumCouponApplicableTo.SHIPPING,
+    );
+
+    if (shippingCoupon && couponInfos.length > 1) {
+      throw new BadRequestException('Only one shipping coupon is allowed');
+    }
+
+    // get shipping address
+    const shippingAddress = await this.userAddressRepository.findOne({
+      where: { id: userAddressId },
+    });
+
+    if (!shippingAddress) {
+      throw new BadRequestException('Shipping address not found');
+    }
+
+    // calculate original amount
+    const originalAmount = cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0,
+    );
+
+    // calculate final amount base on coupon infos and original amount
+    const finalAmount = couponInfos.reduce((total, coupon) => {
+      if (coupon.applicableTo === EnumCouponApplicableTo.PRODUCT) {
+        if (coupon.type === EnumCouponType.PERCENTAGE) {
+          return total * (1 - coupon.value / 100);
+        }
+
+        if (coupon.type === EnumCouponType.FIXED) {
+          return total - coupon.value;
+        }
+
+        return total;
+      }
+
+      return total;
+    }, originalAmount);
+
+    // get original shipping amount
+    const originalShippingFee = 30000;
+
+    // calculate final shipping amount
+    const finalShippingFee = shippingCoupon
+      ? shippingCoupon.type === EnumCouponType.PERCENTAGE
+        ? originalShippingFee * (1 - shippingCoupon.value / 100)
+        : originalShippingFee - shippingCoupon.value
+      : originalShippingFee;
+
     // Create order
     const order = this.orderRepository.create({
-      user: { id: userId },
-      shippingAddress,
+      userId,
       status: EnumOrderStatus.PENDING,
-      totalAmount: cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0,
-      ),
+      originalAmount,
+      finalAmount,
       paymentMethod,
+      originalShippingFee,
+      finalShippingFee,
+      userAddressId,
     });
 
     await this.orderRepository.save(order);
 
-    // Create order items and update stock
-    await Promise.all(
-      cartItems.map(async (item) => {
+    // Create order items, update stock and update coupon
+    await Promise.all([
+      ...cartItems.map(async (item) => {
         const orderItem = this.orderItemRepository.create({
           order,
           product: item.product,
@@ -92,7 +163,22 @@ export class OrderService implements IOrderService {
         product.stockQuantity -= item.quantity;
         await this.productRepository.save(product);
       }),
-    );
+
+      // Update coupon
+      ...couponInfos.map(async (coupon) => {
+        await this.couponService.updateOne(coupon.id, {
+          usageCount: coupon.usageCount + 1,
+        });
+      }),
+
+      // Create order coupons
+      await this.orderCouponService.createMany({
+        orderCoupons: couponInfos.map((coupon) => ({
+          orderId: order.id,
+          couponId: coupon.id,
+        })),
+      }),
+    ]);
 
     // Clear cart
     await this.cartItemRepository.delete({ id: In(cartItemIds) });
@@ -108,18 +194,14 @@ export class OrderService implements IOrderService {
     try {
       const { page, take, sort, sortDirection, skip } = pageOptionDtos;
 
-      // const { keywords } = filters;
-
-      // const searchQuery = keywords?.trim().toLowerCase();
-      // const searchVector = searchQuery
-      //   ? `${searchQuery.split(/\s+/).join(':* & ')}:*`
-      //   : null;
+      const { status } = filters;
 
       const [orders, total] = await this.orderRepository.findAndCount({
         where: {
           user: { id: userId },
+          ...(status && { status }),
         },
-        relations: ['items', 'items.product', 'user'],
+        relations: ['items', 'items.product', 'user', 'orderCoupons'],
         order: {
           [sort ?? 'createdAt']: sortDirection ?? EnumSortDirection.DESC,
         },
@@ -145,7 +227,7 @@ export class OrderService implements IOrderService {
     try {
       const order = await this.orderRepository.findOne({
         where: { id },
-        relations: ['items', 'items.product', 'user'],
+        relations: ['items', 'items.product', 'user', 'orderCoupons'],
       });
 
       if (!order) {

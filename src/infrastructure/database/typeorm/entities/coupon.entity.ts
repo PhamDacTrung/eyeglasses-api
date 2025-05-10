@@ -1,4 +1,8 @@
-import { EnumCouponStatus, EnumCouponType } from '@common/enums';
+import {
+  EnumCouponApplicableTo,
+  EnumCouponStatus,
+  EnumCouponType,
+} from '@common/enums';
 import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
@@ -19,10 +23,10 @@ export class Coupon extends BaseEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   value: number;
 
-  @Column({ type: 'time with time zone' })
+  @Column({ type: 'timestamp with time zone' })
   startDate: Date;
 
-  @Column({ type: 'time with time zone' })
+  @Column({ type: 'timestamp with time zone' })
   endDate: Date;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
@@ -43,6 +47,16 @@ export class Coupon extends BaseEntity {
     default: EnumCouponStatus.ACTIVE,
   })
   status: EnumCouponStatus;
+
+  @Column({
+    type: 'enum',
+    enum: EnumCouponApplicableTo,
+    default: EnumCouponApplicableTo.PRODUCT,
+  })
+  applicableTo: EnumCouponApplicableTo;
+
+  @Column({ type: 'boolean', default: true })
+  isPublic: boolean;
 
   @Column({
     type: 'tsvector',

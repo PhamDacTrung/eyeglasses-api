@@ -12,6 +12,7 @@ import {
 } from 'nest-winston';
 import { Logger } from 'winston';
 import { UserModule } from './modules/user/user.module';
+import { CouponModule } from './modules/coupon/coupon.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { UserModule } from './modules/user/user.module';
     RouterModule.forRoot(),
     ...Infrastructure,
     UserModule,
+    CouponModule,
   ],
   providers: [
     {

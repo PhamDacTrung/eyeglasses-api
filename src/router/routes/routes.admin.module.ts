@@ -1,5 +1,7 @@
 // Use this route for system admin
 
+import { CouponAdminController } from '@modules/coupon/controllers';
+import { CouponModule } from '@modules/coupon/coupon.module';
 import { OrderAdminController } from '@modules/order/controllers/order.admin.controller';
 import { OrderModule } from '@modules/order/order.module';
 import { ProductAdminController } from '@modules/product/controllers';
@@ -13,9 +15,10 @@ import { Module } from '@nestjs/common';
     UserAdminController,
     ProductAdminController,
     OrderAdminController,
+    CouponAdminController,
   ],
   providers: [],
   exports: [],
-  imports: [UserModule, ProductModule, OrderModule],
+  imports: [UserModule, ProductModule, OrderModule, CouponModule],
 })
 export class RoutesAdminModule {}

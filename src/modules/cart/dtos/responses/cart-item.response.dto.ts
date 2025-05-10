@@ -20,11 +20,7 @@ export class CartItemResponseDto {
   @Expose()
   @ApiProperty({
     description: 'The product',
-    type: OmitType(ProductResponseDto, [
-      'imageUrls',
-      'description',
-      'stockQuantity',
-    ]),
+    type: OmitType(ProductResponseDto, ['description', 'stockQuantity']),
   })
   product: Omit<
     ProductResponseDto,

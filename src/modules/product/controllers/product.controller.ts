@@ -9,7 +9,7 @@ import { IProductService } from '../interfaces';
   path: 'products',
   version: '1',
 })
-@ApiTags('Products (Admin only)')
+@ApiTags('Products')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(EnumUserRole.USER)

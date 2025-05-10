@@ -1,14 +1,10 @@
+import { PageDto } from '@common/paginations';
+
 export interface ICorePaginateResult {
   status?: boolean;
   statusCode: number;
-  data?: {
-    list?: unknown;
-    total?: number;
-    pages?: number;
-    hasNextPage?: boolean;
-    encKey?: string;
-  } | null;
-  message: string;
+  data?: PageDto<unknown>;
+  message?: string;
 }
 
 export interface ICoreResponse {

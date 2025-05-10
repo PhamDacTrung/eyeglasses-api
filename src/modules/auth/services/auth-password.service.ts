@@ -40,13 +40,6 @@ export class AuthPasswordService implements IAuthService {
         throw new BadRequestException('User email already exists');
       }
 
-      const userName = await this.userRepository.findOneBy({
-        name: input.name,
-      });
-      if (userName) {
-        throw new BadRequestException('User name already exists');
-      }
-
       // hash password
       const salt = await bcrypt.genSalt();
       const hashPassword = await bcrypt.hash(input.password, salt);

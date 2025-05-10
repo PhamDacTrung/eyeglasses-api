@@ -45,7 +45,10 @@ export interface IProductService {
    * @param product - The product to update
    * @returns The updated product
    */
-  updateOne(id: string, data: UpdateProductRequestDto): Promise<void>;
+  updateOne(
+    id: string,
+    data: UpdateProductRequestDto,
+  ): Promise<ProductResponseDto>;
 
   /**
    * Delete a product

@@ -1,4 +1,5 @@
-import { PageOptionsDto } from '@common/paginations';
+import { EnumSortDirection, EnumUserRole } from '@common/enums';
+import { PageMetaDto, PageOptionsDto } from '@common/paginations';
 import {
   ExceptionHandler,
   NotFoundException,
@@ -8,7 +9,7 @@ import { User } from '@entities';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToInstance } from 'class-transformer';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { UpdateUserEmailRequestDto, UserFilterDto } from '../dtos/requests';
 import {
   PageUserResponseDto,
@@ -44,10 +45,49 @@ export class UserService implements IUserService {
     }
   }
 
-  getMany(
+  async getMany(
     pageOptionsDto: PageOptionsDto,
     filters: UserFilterDto,
   ): Promise<PageUserResponseDto> {
-    throw new NotImplementedException('Method not implemented.');
+    try {
+      const { page, take, skip, sort, sortDirection } = pageOptionsDto;
+
+      const { keywords } = filters;
+
+      const searchQuery = keywords?.trim().toLowerCase();
+      const searchVector = searchQuery
+        ? `${searchQuery.split(/\s+/).join(':* & ')}:*`
+        : null;
+
+      const [users, total] = await this.userRepository.findAndCount({
+        where: {
+          role: EnumUserRole.USER,
+          searchVector: searchVector
+            ? Raw((alias) => `${alias} @@ to_tsquery('simple',:query)`, {
+                query: searchVector,
+              })
+            : null,
+        },
+        relations: ['userInfo'],
+        order: {
+          [sort ?? 'createdAt']: sortDirection ?? EnumSortDirection.DESC,
+        },
+        skip,
+        take,
+      });
+
+      const meta = new PageMetaDto({
+        page,
+        take,
+        itemCount: total,
+      });
+
+      return new PageUserResponseDto(
+        plainToInstance(UserResponseDto, users),
+        meta,
+      );
+    } catch (error) {
+      ExceptionHandler.handleErrorException(error);
+    }
   }
 }

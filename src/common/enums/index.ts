@@ -1,3 +1,4 @@
+export * from './coupon-applicable-to.enum';
 export * from './coupon-status.enum';
 export * from './coupon-type.enum';
 export * from './inject-service-token.enum';

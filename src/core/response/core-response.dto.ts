@@ -1,4 +1,5 @@
-import { Expose } from 'class-transformer';
+import { PageDto } from '@common/paginations';
+import { Expose, Type } from 'class-transformer';
 import { ICorePaginateResult, ICoreResponse } from './core-response.interface';
 
 export class CoreResponse implements ICoreResponse {
@@ -24,6 +25,10 @@ export class CoreResponse implements ICoreResponse {
   @Expose()
   docs?: unknown;
 }
+
+// ! There are some issues with the paginated response but I still can't figure out what it is
+// ! I'm not sure if it's the class-transformer or the interceptor that's causing the issue
+// ! This class maybe wrong
 export class CorePaginateResult implements ICorePaginateResult {
   @Expose()
   status?: boolean;
@@ -32,14 +37,9 @@ export class CorePaginateResult implements ICorePaginateResult {
   statusCode: number;
 
   @Expose()
-  data?: {
-    list?: unknown;
-    total?: number;
-    pages?: number;
-    hasNextPage?: boolean;
-    encKey?: string;
-  } | null;
+  message?: string;
 
   @Expose()
-  message: string;
+  @Type(() => PageDto)
+  data?: PageDto<unknown>;
 }

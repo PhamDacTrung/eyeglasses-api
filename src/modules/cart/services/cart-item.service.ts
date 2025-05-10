@@ -67,7 +67,7 @@ export class CartItemService implements ICartItemService {
         cartId: cart.id,
         productId,
         quantity,
-        price: product.price,
+        price: product.salePrice,
       });
     }
 

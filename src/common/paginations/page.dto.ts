@@ -23,6 +23,7 @@ export class PageDto<T> {
 
 export function createPageDto<T>(itemType: new () => T) {
   class PageResponseDto extends PageDto<T> {
+    @Expose()
     @ApiProperty({ type: () => [itemType] }) // Dynamically infer the type
     data: T[];
   }

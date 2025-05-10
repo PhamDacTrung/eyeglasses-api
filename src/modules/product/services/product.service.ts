@@ -31,7 +31,7 @@ export class ProductService implements IProductService {
   ): Promise<PageProductResponseDto> {
     try {
       const { page, take, sort, sortDirection, skip } = pageOptions;
-      const { keywords } = filters;
+      const { keywords } = filters || {};
 
       const searchQuery = keywords?.trim().toLowerCase();
       const searchVector = searchQuery
@@ -75,7 +75,7 @@ export class ProductService implements IProductService {
   ): Promise<PageProductResponseDto> {
     try {
       const { page, take, sort, sortDirection, skip } = pageOptions;
-      const { keywords } = filters;
+      const { keywords } = filters || {};
 
       const searchQuery = keywords?.trim().toLowerCase();
       const searchVector = searchQuery
@@ -142,7 +142,10 @@ export class ProductService implements IProductService {
     }
   }
 
-  async updateOne(id: string, data: UpdateProductRequestDto): Promise<void> {
+  async updateOne(
+    id: string,
+    data: UpdateProductRequestDto,
+  ): Promise<ProductResponseDto> {
     try {
       const product = await this.getOneById(id);
 
@@ -156,6 +159,10 @@ export class ProductService implements IProductService {
           productId: id,
         });
       }
+
+      const updatedProduct = await this.getOneById(id);
+
+      return plainToInstance(ProductResponseDto, updatedProduct);
     } catch (error) {
       ExceptionHandler.handleErrorException(error);
     }
