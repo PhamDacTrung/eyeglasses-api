@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { CartItemResponseDto } from './cart-item.response.dto';
 
 export class CartResponseDto {
@@ -11,6 +11,7 @@ export class CartResponseDto {
   id: string;
 
   @Expose()
+  @Type(() => CartItemResponseDto)
   @ApiProperty({
     description: 'The items in the cart',
     type: [CartItemResponseDto],

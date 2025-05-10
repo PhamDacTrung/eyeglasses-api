@@ -128,12 +128,18 @@ export class CartItemService implements ICartItemService {
 
   private async _getCart(userId: string): Promise<CartResponseDto> {
     try {
-      const cart = await this.cartRepository.findOne({
+      let cart = await this.cartRepository.findOne({
         where: { userId },
       });
 
       if (!cart) {
-        throw new NotFoundException('Cart not found');
+        cart = this.cartRepository.create({
+          userId,
+        });
+
+        await this.cartRepository.save(cart);
+
+        return plainToInstance(CartResponseDto, cart);
       }
 
       return plainToInstance(CartResponseDto, cart);

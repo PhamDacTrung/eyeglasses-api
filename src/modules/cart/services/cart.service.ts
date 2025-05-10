@@ -23,7 +23,7 @@ export class CartService implements ICartService {
     });
 
     if (!cart) {
-      cart = this.cartRepository.create({ user: { id: userId } });
+      cart = this.cartRepository.create({ userId });
       await this.cartRepository.save(cart);
     }
 

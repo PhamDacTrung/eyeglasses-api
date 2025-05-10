@@ -24,6 +24,7 @@ export class UserService implements IUserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   updateEmail(input: UpdateUserEmailRequestDto): Promise<void> {
     throw new NotImplementedException('Method not implemented.');
   }

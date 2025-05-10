@@ -77,7 +77,9 @@ export class OrderService implements IOrderService {
     }
 
     // get coupon infos
-    const couponInfos = await this.couponService.getManyByIds(couponIds);
+    const couponInfos = couponIds
+      ? await this.couponService.getManyByIds(couponIds)
+      : [];
 
     // can apply only 1 shipping coupon
     const shippingCoupon = couponInfos.find(
@@ -227,7 +229,7 @@ export class OrderService implements IOrderService {
     try {
       const order = await this.orderRepository.findOne({
         where: { id },
-        relations: ['items', 'items.product', 'user', 'orderCoupons'],
+        relations: ['items', 'items.product', 'user'],
       });
 
       if (!order) {

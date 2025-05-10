@@ -1,6 +1,6 @@
 import { ProductResponseDto } from '@modules/product/dtos/responses';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 
 export class CartItemResponseDto {
   @Expose()
@@ -18,14 +18,12 @@ export class CartItemResponseDto {
   productId: string;
 
   @Expose()
+  @Type(() => OmitType(ProductResponseDto, ['description', 'stockQuantity']))
   @ApiProperty({
     description: 'The product',
     type: OmitType(ProductResponseDto, ['description', 'stockQuantity']),
   })
-  product: Omit<
-    ProductResponseDto,
-    'imageUrls' | 'description' | 'stockQuantity'
-  >;
+  product: Omit<ProductResponseDto, 'description' | 'stockQuantity'>;
 
   @Expose()
   @ApiProperty({
